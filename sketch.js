@@ -1,3 +1,4 @@
+// Initialize player variables
 let player_x = 200,
     player_y = 380;
 let player_size = 20;
@@ -5,10 +6,13 @@ let speed = 3;
 let moving_right = true;
 let is_jumping = false;
 let jump_target_y = 0;
+
+// Initialize platform variables
 let platform_y = 300;
 let platform_width = 100;
 let platform_x = Math.floor(Math.random() * (400 - platform_width));
 
+// Initialize game state variables
 let score = 0;
 let high_score = 0;
 let platforms_since_reset = 0;
@@ -17,12 +21,15 @@ let level = 1;
 let difficulty_increment = 0.2;
 let game_over = false;
 
+// Initialize sound variables
 let jumpSound, gameOverSound, levelUpSound;
 
+// Initialize particle systems
 let particles = [];
 let explosion_particles = [];
 let explosion_timer = 0;
 
+// Particle class definition
 class Particle {
     constructor(x, y, size = null, speed_x = null, speed_y = null, alpha = null) {
         this.x = x;
@@ -46,6 +53,7 @@ class Particle {
     }
 }
 
+// Preload sound files
 function preload() {
     console.log("Loading sounds...");
     jumpSound = loadSound('assets/jump.wav', () => {
@@ -65,12 +73,14 @@ function preload() {
     });
 }
 
+// Setup canvas and text size
 function setup() {
     let canvas = createCanvas(400, 400);
     canvas.id('gameCanvas');
     textSize(20);
 }
 
+// Reset player and platform positions
 function reset_position() {
     player_x = 200;
     player_y = 380;
@@ -84,6 +94,7 @@ function reset_position() {
     platform_width = max(50, platform_width - 5);
 }
 
+// Reset game state
 function reset_game() {
     if (score > high_score) {
         high_score = score;
@@ -98,6 +109,7 @@ function reset_game() {
     reset_position();
 }
 
+// Trigger explosion animation
 function trigger_explosion() {
     explosion_timer = 20;
     for (let i = 0; i < 50; i++) {
@@ -105,14 +117,17 @@ function trigger_explosion() {
     }
 }
 
+// Main draw loop
 function draw() {
     background(0);
     translate(0, -camera_offset);
 
+    // Update high score
     if (score > high_score) {
         high_score = score;
     }
 
+    // Handle explosion animation
     if (explosion_timer > 0) {
         for (let i = explosion_particles.length - 1; i >= 0; i--) {
             let p = explosion_particles[i];
@@ -134,6 +149,7 @@ function draw() {
         return;
     }
 
+    // Handle player movement
     if (!is_jumping) {
         if (moving_right) {
             player_x += speed;
@@ -153,16 +169,19 @@ function draw() {
             is_jumping = false;
             player_y = jump_target_y;
 
+            // Check if player lands on platform
             if (platform_x <= player_x && player_x <= platform_x + platform_width) {
                 score += 1;
                 platform_y -= 50 + Math.floor(Math.random() * 10);
                 platform_x = Math.floor(Math.random() * (width - platform_width));
                 platforms_since_reset += 1;
 
+                // Create particles on platform hit
                 for (let i = 0; i < 10; i++) {
                     particles.push(new Particle(player_x + player_size / 2, player_y));
                 }
 
+                // Level up after 6 platforms
                 if (platforms_since_reset == 6) {
                     level += 1;
                     if (levelUpSound.isLoaded()) {
@@ -176,6 +195,7 @@ function draw() {
         }
     }
 
+    // Update and display particles
     for (let i = particles.length - 1; i >= 0; i--) {
         let p = particles[i];
         p.update();
@@ -185,13 +205,16 @@ function draw() {
         }
     }
 
+    // Draw player and platform
     fill(255);
     rect(player_x, player_y, player_size, player_size);
     fill(255, 0, 0);
     rect(platform_x, platform_y, platform_width, 10);
 
+    // Display score and level
     scoreBoard();
 
+    // Display game over screen
     if (game_over) {
         fill(255);
         textAlign(CENTER);
@@ -200,6 +223,7 @@ function draw() {
     }
 }
 
+// Display score and level
 function scoreBoard() {
     textAlign(LEFT);
     fill(255);
@@ -208,6 +232,7 @@ function scoreBoard() {
     text("High Score: " + high_score, 10, 60 + camera_offset);
 }
 
+// Handle key press events
 function keyPressed() {
     if (key == ' ') {
         if (is_jumping) {
