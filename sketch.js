@@ -209,15 +209,21 @@ function scoreBoard() {
 }
 
 function keyPressed() {
-    if (key == ' ' && !is_jumping && !game_over) {
-        console.log("Space key pressed.");
-        is_jumping = true;
-        jump_target_y = platform_y - player_size;
-        if (jumpSound.isLoaded()) {
-            jumpSound.play();
-            console.log("Playing jump sound.");
-        } else {
-            console.error("Jump sound is not loaded.");
+    if (key == ' ') {
+        if (is_jumping) {
+            // If jumping, cancel the jump and return to horizontal movement
+            is_jumping = false;
+        } else if (!game_over) {
+            // Start a new jump if not already jumping
+            console.log("Space key pressed.");
+            is_jumping = true;
+            jump_target_y = platform_y - player_size;
+            if (jumpSound.isLoaded()) {
+                jumpSound.play();
+                console.log("Playing jump sound.");
+            } else {
+                console.error("Jump sound is not loaded.");
+            }
         }
     }
 }
